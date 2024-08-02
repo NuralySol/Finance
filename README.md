@@ -25,3 +25,7 @@
 The look and design of the app should be similar to that. 
 
 ![The wireframe on how it should look](./Wireframe.png)
+
+### ERD 
+The basic ERD for tracking expenses in a finance app
+![ERD](./Entity%20Relationship%20Diagram%20-%20Frame%201.jpg)

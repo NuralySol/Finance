@@ -1,12 +1,14 @@
 # Finance tracking and expense app (CRUD)
 The app will track expenses and balance using graphs to visualize 
-for easier and more concise customer experience. 
+for easier and more concise customer experience. Using data vis. tools 
+as well as the numerical values.
 
 ## User Story
 * As a user I want my app to responsive
 * As a user I want to able to track my expenses and balance with ease
 * As a user I want the app to be clear and concise
 * As a user I want to be able to see graphs for easier visualization
+
 
 ## Account Access?
 >Role-based access control (RBAC) or Binary Access Control(Boolean)

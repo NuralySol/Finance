@@ -1,4 +1,6 @@
-# Finance tracking and expence app (CRUD)
+# Finance tracking and expense app (CRUD)
+The app will track expenses and balance using graphs to visualize 
+for easier and more concise customer experience. 
 
 ## User Story
 * As a user I want my app to responsive
@@ -48,6 +50,7 @@ const users = [
 
 ## Data Synchronizer 
 > Google Firebase: to run periodically on a sec schedule to i.e. every day. (Part of the backend.)
+consistency, security, accuracy, data-integrity.
 
 ### CRUD
 
@@ -64,7 +67,12 @@ const users = [
 ### Wireframe
 The look and design of the app should be similar to that. 
 
-![The wireframe on how it should look](./Wireframe.png)
+> Login-page
+
+![The wireframe on login page](./Login%20page.jpg)
+> Home-page
+
+![The wireframe on home page](./Main%20landing%20page.jpg)
 
 ### ERD 
 The basic ERD for tracking expenses in a finance app.

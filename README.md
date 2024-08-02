@@ -8,6 +8,7 @@ as well as the numerical values.
 * As a user I want to able to track my expenses and balance with ease
 * As a user I want the app to be clear and concise
 * As a user I want to be able to see graphs for easier visualization
+* As a user I want to be able to log-in and log-out and know that my info is secure.
 
 
 ## Account Access?

@@ -1,7 +1,7 @@
 # Finance tracking and expence app (CRUD)
 
 ## PLaid API
->Use the API [Plaid.com](https://plaid.com/) first 100 accounts is free, it has official node.js client library, exprence tracking, net worth tracking, and documentation.
+>Use the API [Plaid.com](https://plaid.com/) first 100 accounts is free, it has official node.js client library, expense tracking, net worth tracking, and documentation.
 
 ## Database (MongoDB)
 > A good place to place to store the data of customers.

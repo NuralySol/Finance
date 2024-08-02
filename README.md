@@ -5,9 +5,9 @@ as well as the numerical values.
 
 ## User Story
 * As a user I want my app to responsive
-* As a user I want to able to track my expenses and balance with ease
+* As a user I want to able to track my expenses and balances with ease
 * As a user I want to be able to see graphs for easier visualization
-* As a user I want to be able to log-in and log-out and know that my info is secure.
+* As a user I want to be able to log-in and log-out and know that my info is secure
 
 ## Plaid API
 >Use the API [Plaid.com](https://plaid.com/) first 100 accounts is free, it has official node.js client library, expense tracking, net worth tracking, and documentation. I will use my alternate BOA bank account to show how to integrate plaid API to tracking my expenses.
@@ -107,7 +107,9 @@ Sure! A routing table for an ERD like the one provided involves defining the rou
 - Presentation time 
 
 ### Stretch Goals
-Type of account access for more functionality.
+* Type of account access for more functionality.
+* More data type visalizations to compare and contrast the month to month spending (**Tablaeu**)
+* Budgeting 
 
 >Role-based access control (RBAC) or Binary Access Control(Boolean)
 

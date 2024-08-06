@@ -32,14 +32,14 @@ The look and design of the app should be similar to that.
 
 > Login-page
 
-![The wireframe on login page](./Login%20page.jpg)
+![The wireframe on login page](./Assets/Login%20page.jpg)
 > Home-page
 
-![The wireframe on home page](./Main%20landing%20page.jpg)
+![The wireframe on home page](./Assets/Main%20landing%20page.jpg)
 
 ### ERD 
 The basic ERD for tracking expenses in a finance app.
-![ERD](./Entity%20Relationship%20Diagram%20-%20Frame%201.jpg)
+![ERD](./Assets/Entity%20Relationship%20Diagram%20-%20Frame%201.jpg)
 
 ### Data VIS tool
 

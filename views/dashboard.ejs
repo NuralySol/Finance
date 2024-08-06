@@ -4,14 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+        }
+        .chart {
+            width: 45%;
+        }
+    </style>
 </head>
 <body>
     <h1>Finance Dashboard</h1>
-    <canvas id="transactionsChart" width="400" height="200"></canvas>
+    
+    <div class="chart-container">
+        <div class="chart">
+            <h2>Expenses by Category (Bar Chart)</h2>
+            <div id="barChart" style="height: 400px;"></div>
+        </div>
+        
+        <div class="chart">
+            <h2>Expenses by Category (Pie Chart)</h2>
+            <div id="pieChart" style="height: 400px;"></div>
+        </div>
+    </div>
+    
     <script>
         const transactions = <%= JSON.stringify(transactions) %>;
 
+        // Prepare data for Bar Chart
         const categories = transactions.map(txn => txn.category);
         const uniqueCategories = [...new Set(categories)];
         const categoryTotals = uniqueCategories.map(category => {
@@ -20,27 +42,32 @@
                 .reduce((total, txn) => total + txn.amount, 0);
         });
 
-        const ctx = document.getElementById('transactionsChart').getContext('2d');
-        const transactionsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: uniqueCategories,
-                datasets: [{
-                    label: 'Expenses by Category',
-                    data: categoryTotals,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        const barData = [{
+            x: uniqueCategories,
+            y: categoryTotals,
+            type: 'bar'
+        }];
+
+        const barLayout = {
+            title: 'Expenses by Category',
+            xaxis: { title: 'Category' },
+            yaxis: { title: 'Total Amount' }
+        };
+
+        Plotly.newPlot('barChart', barData, barLayout);
+
+        // Prepare data for Pie Chart
+        const pieData = [{
+            labels: uniqueCategories,
+            values: categoryTotals,
+            type: 'pie'
+        }];
+
+        const pieLayout = {
+            title: 'Expenses by Category'
+        };
+
+        Plotly.newPlot('pieChart', pieData, pieLayout);
     </script>
 </body>
 </html>

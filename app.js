@@ -54,6 +54,11 @@ app.get('/register', (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.redirect('/login?error=User%20already%20exists');
+        }
+
         const user = new User({ username, password });
         await user.save();
         res.redirect('/login');

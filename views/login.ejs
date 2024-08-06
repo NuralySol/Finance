@@ -5,6 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Finance Tracker</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -23,15 +66,27 @@
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <p id="errorMessage"><%= error %></p>
+            <p id="errorMessage"></p>
         </div>
     </div>
 
     <script>
+        // Function to get query parameters
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split("&").forEach(pair => {
+                const [key, value] = pair.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+            });
+            return params;
+        }
+
         // Show the error modal if there is an error message
-        <% if (error) { %>
+        const queryParams = getQueryParams();
+        if (queryParams.error) {
+            document.getElementById('errorMessage').innerText = queryParams.error;
             document.getElementById('errorModal').style.display = 'flex';
-        <% } %>
+        }
 
         // Get the modal
         let modal = document.getElementById('errorModal');

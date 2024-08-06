@@ -1,0 +1,22 @@
+{
+  "name": "finance",
+  "version": "1.0.0",
+  "description": "The app will track expenses and balance using graphs to visualize  for easier and more concise customer experience. Using data vis. tools  as well as the numerical values.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "nodemon": "^3.1.4",
+    "plaid": "^26.0.0"
+  }
+}

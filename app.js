@@ -9,6 +9,7 @@ import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { Transaction } from './models/transaction.js';
 import { User } from './models/user.js';
 
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -102,9 +103,35 @@ app.get('/dashboard', async (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/login');
     }
+    const { date, page = 1 } = req.query;
+    const selectedDate = date ? new Date(date) : new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(selectedDate.getFullYear() - 1);
+
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
     try {
-        const transactions = await Transaction.find({}); // Adjust query to fetch only user-specific transactions
-        res.render('dashboard', { transactions });
+        const transactions = await Transaction.find({
+            date: { $gte: oneYearAgo.toISOString(), $lte: selectedDate.toISOString() }
+        })
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+        const totalTransactions = await Transaction.countDocuments({
+            date: { $gte: oneYearAgo.toISOString(), $lte: selectedDate.toISOString() }
+        });
+
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.render('dashboard', { 
+            transactions,
+            username: req.session.username,
+            selectedDate: selectedDate.toISOString().split('T')[0],
+            currentPage: parseInt(page, 10),
+            totalPages
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching transactions');

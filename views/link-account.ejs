@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Bank Account - Finance Tracker</title>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+</head>
+
+<body>
+    <h1>Link Your Bank Account</h1>
+    <button id="link-button">Connect a bank account</button>
+
+    <script>
+        document.getElementById('link-button').onclick = function () {
+            fetch('/create-link-token', {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    var linkHandler = Plaid.create({
+                        token: data.link_token,
+                        onSuccess: function (public_token, metadata) {
+                            // Send the public_token to your server
+                            fetch('/get-transactions', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    public_token: public_token
+                                }),
+                            }).then(response => response.json())
+                                .then(data => {
+                                    console.log('Success:', data);
+                                }).catch((error) => {
+                                    console.error('Error:', error);
+                                });
+                        },
+                        onExit: function (err, metadata) {
+                            // The user exited the Link flow.
+                            if (err != null) {
+                                // The user encountered a Plaid API error prior to exiting.
+                                console.error(err);
+                            }
+                        }
+                    });
+
+                    linkHandler.open();
+                })
+                .catch((error) => {
+                    console.error('Error fetching link token:', error);
+                });
+        };
+    </script>
+</body>
+
+</html>

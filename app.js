@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { Transaction } from './models/transaction.js';
+import { User } from './models/user.js';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(express.static(path.join(__dirname, 'public')));
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const configuration = new Configuration({
     basePath: PlaidEnvironments.sandbox,
@@ -32,28 +33,42 @@ const configuration = new Configuration({
 
 const plaidClient = new PlaidApi(configuration);
 
-// Placeholder user data
-const users = [
-    { username: 'user1', password: 'password1' },
-    { username: 'user2', password: 'password2' },
-];
-
 app.get('/', (req, res) => {
     res.redirect('/login');
+});
+
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const user = new User({ username, password });
+        await user.save();
+        res.redirect('/login');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error registering user');
+    }
 });
 
 app.get('/login', (req, res) => {
     res.render('login');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-
-    if (user) {
-        res.redirect('/link-account');
-    } else {
-        res.status(401).send('Invalid credentials');
+    try {
+        const user = await User.findOne({ username });
+        if (user && await user.comparePassword(password)) {
+            res.redirect('/link-account');
+        } else {
+            res.status(401).send('Invalid credentials');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error logging in');
     }
 });
 

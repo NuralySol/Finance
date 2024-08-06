@@ -11,12 +11,45 @@
         <h1>Login to Finance Tracker</h1>
         <form action="/login" method="post">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
             <button type="submit">Login</button>
         </form>
         <p>Don't have an account? <a href="/register">Create a new account</a></p>
     </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="errorMessage"><%= error %></p>
+        </div>
+    </div>
+
+    <script>
+        // Show the error modal if there is an error message
+        <% if (error) { %>
+            document.getElementById('errorModal').style.display = 'flex';
+        <% } %>
+
+        // Get the modal
+        let modal = document.getElementById('errorModal');
+
+        // Get the <span> element that closes the modal
+        let span = document.getElementsByClassName('close')[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

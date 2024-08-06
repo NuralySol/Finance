@@ -91,6 +91,21 @@ app.get('/link-account', (req, res) => {
     res.render('link-account', { username: req.session.username }); // Pass username to template
 });
 
+// Go to dashboard once the bank is linked
+
+app.get('/dashboard', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    try {
+        const transactions = await Transaction.find({}); // Adjust query to fetch only user-specific transactions
+        res.render('dashboard', { transactions });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching transactions');
+    }
+});
+
 app.post('/create-link-token', async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).send('Unauthorized'); // Deny access if user is not logged in

@@ -76,13 +76,13 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findOne({ username });
-        if (user && await user.comparePassword(password)) {
-            req.session.userId = user._id; // Store user ID in session
-            req.session.username = user.username; // Store username in session
-            res.redirect('/link-account');
-        } else {
-            res.render('login', { error: 'Invalid credentials' });
+        if (!user || !(await user.comparePassword(password))) {
+            return res.redirect('/login?error=Invalid%20username%20or%20password');
         }
+
+        req.session.userId = user._id; // Store user ID in session
+        req.session.username = user.username; // Store username in session
+        res.redirect('/link-account');
     } catch (error) {
         console.error(error);
         res.status(500).send('Error logging in');

@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Bank Account - Finance Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 </head>
 
 <body>
-    <h1>Link Your Bank Account</h1>
-    <button id="link-button">Connect a bank account</button>
+    <div class="container">
+        <h1>Link Your Bank Account</h1>
+        <button id="link-button">Connect a bank account</button>
+    </div>
 
     <script>
         document.getElementById('link-button').onclick = function () {

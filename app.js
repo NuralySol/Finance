@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import session from 'express-session';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 import { Transaction } from './models/transaction.js';
 import { User } from './models/user.js';
@@ -18,8 +19,13 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: false
+}));
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI);
 
 const configuration = new Configuration({
     basePath: PlaidEnvironments.sandbox,
@@ -62,6 +68,7 @@ app.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ username });
         if (user && await user.comparePassword(password)) {
+            req.session.userId = user._id;
             res.redirect('/link-account');
         } else {
             res.status(401).send('Invalid credentials');
@@ -73,14 +80,20 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/link-account', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
     res.render('link-account');
 });
 
 app.post('/create-link-token', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('Unauthorized');
+    }
     try {
         const response = await plaidClient.linkTokenCreate({
             user: {
-                client_user_id: 'unique_user_id', // Replace with actual user id
+                client_user_id: req.session.userId.toString(),
             },
             client_name: 'Finance Tracker App',
             products: ['transactions'],
@@ -95,6 +108,9 @@ app.post('/create-link-token', async (req, res) => {
 });
 
 app.post('/get-transactions', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('Unauthorized');
+    }
     try {
         const { public_token } = req.body;
         const tokenResponse = await plaidClient.itemPublicTokenExchange({
@@ -119,8 +135,7 @@ app.post('/get-transactions', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching transactions');
-    }
-});
+    }});
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');

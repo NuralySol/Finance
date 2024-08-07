@@ -1,3 +1,4 @@
+// app.js
 import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -5,10 +6,9 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
+import { plaidClient } from './plaidClient.js';
 import { Transaction } from './models/transaction.js';
 import { User } from './models/user.js';
-
 
 dotenv.config();
 
@@ -22,26 +22,13 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-    secret: 'your_secret_key', // Replace with a strong secret key
+    secret: 'your_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set secure: true if using HTTPS
+    cookie: { secure: false }
 }));
 
 mongoose.connect(process.env.MONGO_URI);
-
-// Plaid configuration
-const configuration = new Configuration({
-    basePath: PlaidEnvironments.sandbox,
-    baseOptions: {
-        headers: {
-            'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-            'PLAID-SECRET': process.env.PLAID_SECRET,
-        },
-    },
-});
-
-const plaidClient = new PlaidApi(configuration);
 
 // Routes
 app.get('/', (req, res) => {
@@ -81,8 +68,8 @@ app.post('/login', async (req, res) => {
             return res.redirect('/login?error=Invalid%20username%20or%20password');
         }
 
-        req.session.userId = user._id; // Store user ID in session
-        req.session.username = user.username; // Store username in session
+        req.session.userId = user._id;
+        req.session.username = user.username;
         res.redirect('/link-account');
     } catch (error) {
         console.error(error);
@@ -92,12 +79,62 @@ app.post('/login', async (req, res) => {
 
 app.get('/link-account', (req, res) => {
     if (!req.session.userId) {
-        return res.redirect('/login'); // Redirect to login if user is not logged in
+        return res.redirect('/login');
     }
-    res.render('link-account', { username: req.session.username }); // Pass username to template
+    res.render('link-account', { username: req.session.username });
 });
 
-// Go to dashboard once the bank is linked
+app.post('/create-link-token', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('Unauthorized');
+    }
+    try {
+        const response = await plaidClient.linkTokenCreate({
+            user: {
+                client_user_id: req.session.userId.toString(),
+            },
+            client_name: 'Finance Tracker App',
+            products: ['transactions'],
+            country_codes: ['US'],
+            language: 'en',
+        });
+        res.json({ link_token: response.data.link_token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error creating link token');
+    }
+});
+
+app.post('/get-transactions', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('Unauthorized');
+    }
+    try {
+        const { public_token } = req.body;
+        const tokenResponse = await plaidClient.itemPublicTokenExchange({
+            public_token: public_token,
+        });
+        const accessToken = tokenResponse.data.access_token;
+        const transactionsResponse = await plaidClient.transactionsGet({
+            access_token: accessToken,
+            start_date: '2021-01-01',
+            end_date: '2021-12-31',
+        });
+
+        const transactions = transactionsResponse.data.transactions.map(txn => ({
+            date: txn.date,
+            name: txn.name,
+            amount: txn.amount,
+            category: txn.category[0]
+        }));
+
+        await Transaction.insertMany(transactions);
+        res.json('Transactions saved to MongoDB');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching transactions');
+    }
+});
 
 app.get('/dashboard', async (req, res) => {
     if (!req.session.userId) {
@@ -135,72 +172,6 @@ app.get('/dashboard', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching transactions');
-    }
-});
-
-app.post('/create-link-token', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).send('Unauthorized'); // Deny access if user is not logged in
-    }
-    try {
-        const response = await plaidClient.linkTokenCreate({
-            user: {
-                client_user_id: req.session.userId.toString(), // Use user ID from session
-            },
-            client_name: 'Finance Tracker App',
-            products: ['transactions'],
-            country_codes: ['US'],
-            language: 'en',
-        });
-        res.json({ link_token: response.data.link_token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error creating link token');
-    }
-});
-
-app.post('/get-transactions', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).send('Unauthorized'); // Deny access if user is not logged in
-    }
-    try {
-        const { public_token } = req.body;
-        const tokenResponse = await plaidClient.itemPublicTokenExchange({
-            public_token: public_token,
-        });
-        const accessToken = tokenResponse.data.access_token;
-        const transactionsResponse = await plaidClient.transactionsGet({
-            access_token: accessToken,
-            start_date: '2021-01-01',
-            end_date: '2021-12-31',
-        });
-
-        const transactions = transactionsResponse.data.transactions.map(txn => ({
-            date: txn.date,
-            name: txn.name,
-            amount: txn.amount,
-            category: txn.category[0]
-        }));
-
-        await Transaction.insertMany(transactions);
-        res.json('Transactions saved to MongoDB');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching transactions');
-    }
-});
-
-app.delete('/delete-user', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).send('Unauthorized');
-    }
-    try {
-        await User.findByIdAndDelete(req.session.userId);
-        req.session.destroy(); // Destroy the session
-        res.send('User deleted successfully');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error deleting user');
     }
 });
 

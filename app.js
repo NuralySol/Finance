@@ -111,16 +111,25 @@ app.post('/get-transactions', async (req, res) => {
     }
     try {
         const { public_token } = req.body;
+        console.log('Public Token:', public_token);
+
+        // Exchange the public token for an access token
         const tokenResponse = await plaidClient.itemPublicTokenExchange({
             public_token: public_token,
         });
         const accessToken = tokenResponse.data.access_token;
+        console.log('Access Token:', accessToken);
+
+        // Fetch transactions from Plaid
         const transactionsResponse = await plaidClient.transactionsGet({
             access_token: accessToken,
             start_date: '2021-01-01',
-            end_date: '2021-12-31',
+            end_date: '2024-08-07',
         });
 
+        console.log('Transactions Response:', transactionsResponse.data);
+
+        // Create and save transactions to MongoDB
         const transactions = transactionsResponse.data.transactions.map(txn => ({
             date: txn.date,
             name: txn.name,
@@ -128,10 +137,15 @@ app.post('/get-transactions', async (req, res) => {
             category: txn.category[0]
         }));
 
-        await Transaction.insertMany(transactions);
+        // Save each transaction individually
+        for (const txn of transactions) {
+            const transaction = new Transaction(txn);
+            await transaction.save();
+        }
+
         res.json('Transactions saved to MongoDB');
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching transactions:', error);
         res.status(500).send('Error fetching transactions');
     }
 });

@@ -36,7 +36,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    var linkHandler = Plaid.create({
+                    let linkHandler = Plaid.create({
                         token: data.link_token,
                         onSuccess: function (public_token, metadata) {
                             // Send the public_token to your server
@@ -51,6 +51,7 @@
                             }).then(response => response.json())
                                 .then(data => {
                                     console.log('Success:', data);
+                                    alert('Transactions saved to MongoDB');
                                 }).catch((error) => {
                                     console.error('Error:', error);
                                 });
@@ -123,7 +124,7 @@
                 modal.style.display = 'none';
             }
         }
-        
+
     </script>
     <a href="/dashboard">Go to Dashboard</a>
 </body>

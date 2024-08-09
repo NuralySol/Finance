@@ -195,6 +195,18 @@ app.get('/dashboard', async (req, res) => {
     }
 });
 
+app.get('/dashboard', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login'); // Redirect if not logged in
+    }
+
+    // Pass the username to the template
+    res.render('dashboard', {
+        username: req.session.username, // Pass username from session to EJS
+        // Add any other data you need to pass, like transactions, selectedDate, etc.
+    });
+});
+
 app.delete('/delete-user', async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).send('Unauthorized');

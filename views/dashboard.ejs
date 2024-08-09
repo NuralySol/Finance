@@ -203,12 +203,12 @@
     <div class="chart-container">
         <div class="chart">
             <h2>Expenses by Category (Pie Chart)</h2>
-            <div id="pieChart" style="height: 450px;"></div>
+            <div id="pieChart" style="height: 550px;"></div>
         </div>
 
         <div class="chart">
             <h2>Expenses by Place of Spending (Bar Chart)</h2>
-            <div id="barChart" style="height: 450px;"></div>
+            <div id="barChart" style="height: 550px;"></div>
             <button id="sortButton" style="margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 Sort: Highest to Lowest
             </button>
@@ -362,7 +362,7 @@ function updateBarChart(sortedKeys, sortedValues) {
         title: 'Amount Spent by Place',
         xaxis: { title: 'Place of Spending' },
         yaxis: { title: 'Total Amount ($)' },
-        margin: { t: 40, b: 40, l: 40, r: 40 },
+        margin: { t: 70, b: 120, l: 50, r: 40 },
     };
 
     Plotly.newPlot('barChart', barData, barLayout);

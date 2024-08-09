@@ -198,6 +198,7 @@
         <div class="date" id="currentDate"></div>
     </div>
     <h1>Finance Dashboard</h1>
+    <div id="dateRangeDisplay" style="font-size: 1.2em; color: #666; margin-bottom: 20px; text-align: center;"></div>
 
     <div class="chart-container">
         <div class="chart">
@@ -208,6 +209,12 @@
         <div class="chart">
             <h2>Expenses by Place of Spending (Bar Chart)</h2>
             <div id="barChart" style="height: 450px;"></div>
+            <button id="sortButton" style="margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Sort: Highest to Lowest
+            </button>
+            <button id="sortDateButton" style="margin-top: 10px; padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Sort by Date: Newest to Oldest
+            </button>
         </div>
     </div>
 
@@ -218,7 +225,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Name</th>
-                    <th>Expenditure/Refund</th>
+                    <th>Type</th>
                     <th>Amount $</th>
                 </tr>
             </thead>
@@ -227,7 +234,9 @@
                     <tr>
                         <td><%= new Date(transaction.date).toLocaleDateString('en-US') %></td>
                         <td><%= transaction.name %></td>
-                        <td><%= transaction.category %></td>
+                        <td>
+                            <%= transaction.amount > 0 ? 'Expenditure' : 'Refund' %>
+                        </td>
                         <td><%= transaction.amount.toFixed(2) %></td>
                     </tr>
                 <% }); %>
@@ -239,7 +248,7 @@
             <% } else { %>
                 <span class="disabled">Previous</span>
             <% } %>
-
+    
             <% if (currentPage < totalPages) { %>
                 <a href="/dashboard?date=<%= selectedDate %>&page=<%= currentPage + 1 %>">Next</a>
             <% } else { %>
@@ -254,22 +263,51 @@
 
     <script>
         // Log the transactions to ensure data is correctly passed
-        const transactions = <%- JSON.stringify(transactions) %>;
-        console.log('Transactions:', transactions);
+const transactions = <%- JSON.stringify(transactions) %>;
+console.log('Transactions:', transactions);
 
-        // Check if Plotly is loaded
-        console.log('Plotly:', Plotly);
+// Check if Plotly is loaded
+console.log('Plotly:', Plotly);
 
-        // Function to update the current date display
-        function updateDate() {
-            const dateElement = document.getElementById('currentDate');
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateElement.textContent = now.toLocaleDateString('en-US', options);
-        }
-        updateDate();
+// Function to update the current date display
+function updateDate() {
+    const dateElement = document.getElementById('currentDate');
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateElement.textContent = now.toLocaleDateString('en-US', options);
+}
+updateDate();
 
-       // Function to generate a random muted color
+// Calculate the date range from the transactions
+function calculateDateRange(transactions) {
+    if (!transactions || transactions.length === 0) {
+        return 'No transactions available';
+    }
+
+    const dates = transactions.map(txn => new Date(txn.date));
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+
+    const formatDate = (date) => date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    return `${formatDate(minDate)} - ${formatDate(maxDate)}`;
+}
+
+// Display the date range in the dateRangeDisplay div
+function updateDateRangeDisplay() {
+    const dateRange = calculateDateRange(transactions);
+    const dateRangeDisplayElement = document.getElementById('dateRangeDisplay');
+    dateRangeDisplayElement.textContent = `Date Range: ${dateRange}`;
+}
+
+// Call the function to display the date range when the page loads
+updateDateRangeDisplay();
+
+// Function to generate a random muted color
 function getRandomMutedColor() {
     const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
     const saturation = Math.floor(Math.random() * 30) + 40; // Saturation between 40% and 70%
@@ -292,102 +330,142 @@ const pieLayout = {
     margin: { t: 70, b: 30, l: 30, r: 30 },
 };
 
+// Render the Pie Chart
 Plotly.newPlot('pieChart', pieData, pieLayout);
 
-// Prepare data for Bar Chart
-const spendingByPlace = transactions.reduce((acc, txn) => {
+// Initial data preparation for the bar chart
+let spendingByPlace = transactions.reduce((acc, txn) => {
     acc[txn.name] = (acc[txn.name] || 0) + txn.amount;
     return acc;
 }, {});
 
-const barData = [{
-    x: Object.keys(spendingByPlace),
-    y: Object.values(spendingByPlace),
-    type: 'bar',
-    marker: {
-        color: Object.keys(spendingByPlace).map(() => getRandomMutedColor()), // Assign random muted colors
-        line: {
-            width: 1,
-            color: 'black' // Optional: black border for each bar
+let sorted = false;
+
+// Function to update the bar chart based on sorting (highest to lowest, or by date)
+function updateBarChart(sortedKeys, sortedValues) {
+    const colors = sortedKeys.map(() => getRandomMutedColor());
+
+    const barData = [{
+        x: sortedKeys,
+        y: sortedValues,
+        type: 'bar',
+        marker: {
+            color: colors,
+            line: {
+                width: 1,
+                color: 'black'
+            }
         }
-    }
-}];
+    }];
 
-const barLayout = {
-    title: 'Amount Spent by Place',
-    xaxis: { title: 'Place of Spending' },
-    yaxis: { title: 'Total Amount ($)' },
-    margin: { t: 40, b: 40, l: 40, r: 40 },
-};
+    const barLayout = {
+        title: 'Amount Spent by Place',
+        xaxis: { title: 'Place of Spending' },
+        yaxis: { title: 'Total Amount ($)' },
+        margin: { t: 40, b: 40, l: 40, r: 40 },
+    };
 
-Plotly.newPlot('barChart', barData, barLayout);
+    Plotly.newPlot('barChart', barData, barLayout);
+}
 
-  // Function to format a date into YYYY-MM-DD format
-  function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
+// Initial plot of the bar chart
+updateBarChart(Object.keys(spendingByPlace), Object.values(spendingByPlace));
 
-    // Date navigation logic
-    const prevDayButton = document.getElementById('prevDay');
-    const nextDayButton = document.getElementById('nextDay');
-    const prevMonthButton = document.getElementById('prevMonth');
-    const nextMonthButton = document.getElementById('nextMonth');
-    const refreshTodayButton = document.getElementById('refreshToday');
-    const selectedDateElement = document.getElementById('selectedDate');
+// Event listener for sorting by highest to lowest
+document.getElementById('sortButton').addEventListener('click', () => {
+    sorted = !sorted;
 
-    function navigateDate(incrementType, incrementValue) {
-        let selectedDate = new Date(selectedDateElement.textContent);
-
-        if (incrementType === 'day') {
-            selectedDate.setDate(selectedDate.getDate() + incrementValue);
-        } else if (incrementType === 'month') {
-            selectedDate.setMonth(selectedDate.getMonth() + incrementValue);
+    const sortedKeys = Object.keys(spendingByPlace).sort((a, b) => {
+        if (sorted) {
+            return spendingByPlace[a] - spendingByPlace[b]; // Ascending order
+        } else {
+            return spendingByPlace[b] - spendingByPlace[a]; // Descending order
         }
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
-
-        if (selectedDate > today) {
-            alert("You cannot select a future date!");
-            return;
-        }
-
-        const formattedDate = formatDate(selectedDate);
-        selectedDateElement.textContent = formattedDate; // Update the displayed date
-
-        window.location.href = `/dashboard?date=${formattedDate}`;
-    }
-
-    prevDayButton.addEventListener('click', () => navigateDate('day', -1));
-
-    nextDayButton.addEventListener('click', () => {
-        let selectedDate = new Date(selectedDateElement.textContent);
-        selectedDate.setDate(selectedDate.getDate() + 1);
-        const formattedDate = formatDate(selectedDate);
-        selectedDateElement.textContent = formattedDate; // Update the displayed date
-        window.location.href = `/dashboard?date=${formattedDate}`;
     });
 
-    prevMonthButton.addEventListener('click', () => navigateDate('month', -1));
+    const sortedValues = sortedKeys.map(key => spendingByPlace[key]);
 
-    nextMonthButton.addEventListener('click', () => {
-        let selectedDate = new Date(selectedDateElement.textContent);
-        selectedDate.setMonth(selectedDate.getMonth() + 1);
-        const formattedDate = formatDate(selectedDate);
-        selectedDateElement.textContent = formattedDate; // Update the displayed date
-        window.location.href = `/dashboard?date=${formattedDate}`;
+    updateBarChart(sortedKeys, sortedValues);
+    document.getElementById('sortButton').textContent = sorted ? 'Sort: Lowest to Highest' : 'Sort: Highest to Lowest';
+});
+
+// Event listener for sorting by date (newest to oldest)
+let sortByDateDescending = true;
+
+document.getElementById('sortDateButton').addEventListener('click', () => {
+    sortByDateDescending = !sortByDateDescending;
+
+    const sortedTransactions = transactions.slice().sort((a, b) => {
+        return sortByDateDescending
+            ? new Date(b.date) - new Date(a.date)
+            : new Date(a.date) - new Date(b.date);
     });
 
-    // Refresh to current day logic
-    refreshTodayButton.addEventListener('click', () => {
-        const today = new Date();
-        const formattedDate = formatDate(today);
-        selectedDateElement.textContent = formattedDate; // Update the displayed date
-        window.location.href = `/dashboard?date=${formattedDate}`;
-    });
+    spendingByPlace = sortedTransactions.reduce((acc, txn) => {
+        acc[txn.name] = (acc[txn.name] || 0) + txn.amount;
+        return acc;
+    }, {});
+
+    const sortedKeys = Object.keys(spendingByPlace);
+    const sortedValues = sortedKeys.map(key => spendingByPlace[key]);
+
+    updateBarChart(sortedKeys, sortedValues);
+    document.getElementById('sortDateButton').textContent = sortByDateDescending
+        ? 'Sort by Date: Newest to Oldest'
+        : 'Sort by Date: Oldest to Newest';
+});
+
+// Function to format a date into YYYY-MM-DD format
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Date navigation logic
+const prevDayButton = document.getElementById('prevDay');
+const nextDayButton = document.getElementById('nextDay');
+const prevMonthButton = document.getElementById('prevMonth');
+const nextMonthButton = document.getElementById('nextMonth');
+const refreshTodayButton = document.getElementById('refreshToday');
+const selectedDateElement = document.getElementById('selectedDate');
+
+function navigateDate(incrementType, incrementValue) {
+    let selectedDate = new Date(selectedDateElement.textContent);
+
+    if (incrementType === 'day') {
+        selectedDate.setDate(selectedDate.getDate() + incrementValue);
+    } else if (incrementType === 'month') {
+        selectedDate.setMonth(selectedDate.getMonth() + incrementValue);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
+
+    if (selectedDate > today) {
+        alert("You cannot select a future date!");
+        return;
+    }
+
+    const formattedDate = formatDate(selectedDate);
+    selectedDateElement.textContent = formattedDate; // Update the displayed date
+
+    window.location.href = `/dashboard?date=${formattedDate}`;
+}
+
+prevDayButton.addEventListener('click', () => navigateDate('day', -1));
+nextDayButton.addEventListener('click', () => navigateDate('day', 1));
+prevMonthButton.addEventListener('click', () => navigateDate('month', -1));
+nextMonthButton.addEventListener('click', () => navigateDate('month', 1));
+
+// Refresh to current day logic
+refreshTodayButton.addEventListener('click', () => {
+    const today = new Date();
+    const formattedDate = formatDate(today);
+    selectedDateElement.textContent = formattedDate; // Update the displayed date
+    window.location.href = `/dashboard?date=${formattedDate}`;
+});
     </script>
 </body>
 

@@ -14,6 +14,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            position: relative;
         }
 
         h1 {
@@ -89,21 +91,16 @@
             font-size: 1.2em;
         }
 
-        .plotly-graph-div .modebar {
-            position: absolute !important;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
         .transaction-history {
             width: 90%;
             max-width: 1200px;
-            margin: 20px 0;
+            margin-top: auto;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
         }
 
         .transaction-history h2 {
@@ -117,19 +114,24 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9em;
+            margin-bottom: 20px;
         }
 
         .transaction-history th,
         .transaction-history td {
-            padding: 10px;
+            padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         .transaction-history th {
-            background-color: #f0f2f5;
+            background-color: #f8f9fa;
             color: #333;
             font-weight: bold;
+        }
+
+        .transaction-history tbody tr:hover {
+            background-color: #f1f1f1;
         }
 
         .pagination {
@@ -140,7 +142,7 @@
 
         .pagination a {
             margin: 0 5px;
-            padding: 5px 10px;
+            padding: 8px 16px;
             background-color: #007bff;
             color: white;
             text-decoration: none;
@@ -157,19 +159,24 @@
             background-color: #cccccc;
             pointer-events: none;
         }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
     </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 
+
 <body>
     <div class="header">
-        <div class="username">Welcome, <%= username %>!</div>
+        <div class="username">Welcome, nuraly!</div>
         <div class="date-picker">
             <button id="prevMonth">Previous Month</button>
             <button id="prevDay">Previous Day</button>
-            <span id="selectedDate">
-                <%= selectedDate %>
-            </span>
+            <span id="selectedDate"><%= selectedDate %></span>
             <button id="nextDay">Next Day</button>
             <button id="nextMonth">Next Month</button>
         </div>
@@ -184,51 +191,61 @@
         </div>
 
         <div class="chart">
-            <h2>Expenses by Category (Bar Chart)</h2>
+            <h2>Expenses by Place of Spending (Bar Chart)</h2>
             <div id="barChart" style="height: 400px;"></div>
         </div>
     </div>
 
     <div class="transaction-history">
-        <div class="pagination">
-            <a href="/dashboard?date=<%= selectedDate %>&page=<%= currentPage - 1 %>"
-                class="<%= currentPage === 1 ? 'disabled' : '' %>">Previous</a>
-            <a href="/dashboard?date=<%= selectedDate %>&page=<%= currentPage + 1 %>"
-                class="<%= currentPage === totalPages ? 'disabled' : '' %>">Next</a>
-        </div>
         <h2>Transaction History</h2>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Name</th>
-                    <th>in dollars $</th>
+                    <th>Category</th>
                     <th>Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <% transactions.forEach(transaction=> { %>
+                <% transactions.forEach(function(transaction) { %>
                     <tr>
-                        <td>
-                            <%= new Date(transaction.date).toLocaleDateString('en-US') %>
-                        </td>
-                        <td>
-                            <%= transaction.name %>
-                        </td>
-                        <td>
-                            <%= transaction.category %>
-                        </td>
-                        <td>
-                            <%= transaction.amount %>
-                        </td>
+                        <td><%= new Date(transaction.date).toLocaleDateString('en-US') %></td>
+                        <td><%= transaction.name %></td>
+                        <td><%= transaction.category %></td>
+                        <td><%= transaction.amount.toFixed(2) %></td>
                     </tr>
-                    <% }) %>
+                <% }); %>
             </tbody>
         </table>
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="/dashboard?date=<%= selectedDate %>&page=<%= currentPage - 1 %>">Previous</a>
+            <% } else { %>
+                <span class="disabled">Previous</span>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+                <a href="/dashboard?date=<%= selectedDate %>&page=<%= currentPage + 1 %>">Next</a>
+            <% } else { %>
+                <span class="disabled">Next</span>
+            <% } %>
+        </div>
     </div>
 
+    <footer>
+        &copy; 2024 Finance Dashboard
+    </footer>
+
     <script>
-        // Function to update the current date
+        // Log the transactions to ensure data is correctly passed
+        const transactions = <%- JSON.stringify(transactions) %>;
+        console.log('Transactions:', transactions);
+
+        // Check if Plotly is loaded
+        console.log('Plotly:', Plotly);
+
+        // Function to update the current date display
         function updateDate() {
             const dateElement = document.getElementById('currentDate');
             const now = new Date();
@@ -237,20 +254,32 @@
         }
         updateDate();
 
-        const transactions = <%= JSON.stringify(transactions) %>;
+        // Prepare data for Pie Chart
+        const pieData = [{
+            labels: transactions.map(txn => txn.name),
+            values: transactions.map(txn => Math.abs(txn.amount)), // Using absolute values for spending amounts
+            type: 'pie',
+            marker: {
+                colors: transactions.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`)
+            }
+        }];
+
+        const pieLayout = {
+            title: 'Amount Spent by Place',
+            margin: { t: 40, b: 40, l: 40, r: 40 },
+        };
+
+        Plotly.newPlot('pieChart', pieData, pieLayout);
 
         // Prepare data for Bar Chart
-        const categories = transactions.map(txn => txn.category);
-        const uniqueCategories = [...new Set(categories)];
-        const categoryTotals = uniqueCategories.map(category => {
-            return transactions
-                .filter(txn => txn.category === category)
-                .reduce((total, txn) => total + txn.amount, 0);
-        });
+        const spendingByPlace = transactions.reduce((acc, txn) => {
+            acc[txn.name] = (acc[txn.name] || 0) + txn.amount;
+            return acc;
+        }, {});
 
         const barData = [{
-            x: uniqueCategories,
-            y: categoryTotals,
+            x: Object.keys(spendingByPlace),
+            y: Object.values(spendingByPlace),
             type: 'bar',
             marker: {
                 color: 'rgba(55, 128, 191, 0.7)',
@@ -259,69 +288,54 @@
         }];
 
         const barLayout = {
-            title: 'Expenses by Category',
-            xaxis: { title: 'Category' },
-            yaxis: { title: 'Total Amount' },
+            title: 'Amount Spent by Place',
+            xaxis: { title: 'Place of Spending' },
+            yaxis: { title: 'Total Amount ($)' },
             margin: { t: 40, b: 40, l: 40, r: 40 },
         };
 
         Plotly.newPlot('barChart', barData, barLayout);
 
-        // Prepare data for Pie Chart
-        const pieData = [{
-            labels: uniqueCategories,
-            values: categoryTotals,
-            type: 'pie',
-            marker: {
-                colors: uniqueCategories.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`)
-            }
-        }];
+        // Function to format a date into YYYY-MM-DD format
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-        const pieLayout = {
-            title: 'Expenses by Category',
-            margin: { t: 40, b: 40, l: 40, r: 40 },
-        };
-
-        Plotly.newPlot('pieChart', pieData, pieLayout);
-
-        // Date navigation logic
-        const prevMonthButton = document.getElementById('prevMonth');
+        // Date navigation logic with error handling
         const prevDayButton = document.getElementById('prevDay');
         const nextDayButton = document.getElementById('nextDay');
+        const prevMonthButton = document.getElementById('prevMonth');
         const nextMonthButton = document.getElementById('nextMonth');
         const selectedDateElement = document.getElementById('selectedDate');
 
-        prevMonthButton.addEventListener('click', () => {
+        function navigateDate(incrementType, incrementValue) {
             let selectedDate = new Date(selectedDateElement.textContent);
-            selectedDate.setMonth(selectedDate.getMonth() - 1);
-            if (new Date(selectedDateElement.textContent) - new Date(new Date().setFullYear(new Date().getFullYear() - 1)) > 0) {
-                window.location.href = `/dashboard?date=${selectedDate.toISOString().split('T')[0]}`;
-            }
-        });
 
-        prevDayButton.addEventListener('click', () => {
-            let selectedDate = new Date(selectedDateElement.textContent);
-            selectedDate.setDate(selectedDate.getDate() - 1);
-            if (new Date(selectedDateElement.textContent) - new Date(new Date().setFullYear(new Date().getFullYear() - 1)) > 0) {
-                window.location.href = `/dashboard?date=${selectedDate.toISOString().split('T')[0]}`;
+            if (incrementType === 'day') {
+                selectedDate.setDate(selectedDate.getDate() + incrementValue);
+            } else if (incrementType === 'month') {
+                selectedDate.setMonth(selectedDate.getMonth() + incrementValue);
             }
-        });
 
-        nextDayButton.addEventListener('click', () => {
-            let selectedDate = new Date(selectedDateElement.textContent);
-            selectedDate.setDate(selectedDate.getDate() + 1);
-            if (new Date() - selectedDate >= 0) {
-                window.location.href = `/dashboard?date=${selectedDate.toISOString().split('T')[0]}`;
-            }
-        });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
 
-        nextMonthButton.addEventListener('click', () => {
-            let selectedDate = new Date(selectedDateElement.textContent);
-            selectedDate.setMonth(selectedDate.getMonth() + 1);
-            if (new Date() - selectedDate >= 0) {
-                window.location.href = `/dashboard?date=${selectedDate.toISOString().split('T')[0]}`;
+            if (selectedDate > today) {
+                alert("You cannot select a future date!");
+                return;
             }
-        });
+
+            const formattedDate = formatDate(selectedDate);
+            window.location.href = `/dashboard?date=${formattedDate}`;
+        }
+
+        prevDayButton.addEventListener('click', () => navigateDate('day', -1));
+        nextDayButton.addEventListener('click', () => navigateDate('day', 1));
+        prevMonthButton.addEventListener('click', () => navigateDate('month', -1));
+        nextMonthButton.addEventListener('click', () => navigateDate('month', 1));
     </script>
 </body>
 

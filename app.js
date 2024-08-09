@@ -176,8 +176,14 @@ app.get('/dashboard', async (req, res) => {
 
         const totalPages = Math.ceil(totalTransactions / limit);
 
+        // Pass the formatted transactions to EJS
+        const formattedTransactions = transactions.map(txn => ({
+            ...txn._doc, // Get the document data
+            date: new Date(txn.date).toLocaleDateString('en-US')
+        }));
+
         res.render('dashboard', { 
-            transactions,
+            transactions: formattedTransactions,
             username: req.session.username,
             selectedDate: selectedDate.toISOString().split('T')[0],
             currentPage: parseInt(page, 10),

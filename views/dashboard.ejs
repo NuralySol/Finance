@@ -321,6 +321,11 @@ function getColorForTransaction(amount) {
     return amount < 0 ? '#f8d7da' : getRandomMutedColor(); // Red for refunds, random muted color for expenditures
 }
 
+// Function to generate a border color based on whether the transaction is a refund
+function getBorderColorForTransaction(amount) {
+    return amount < 0 ? 'yellow' : 'transparent'; // Yellow border for refunds, no border for expenditures
+}
+
 // Function to process transactions for the pie chart
 function processTransactionsForPieChart(transactions, showRefunds = true) {
     return transactions
@@ -328,7 +333,8 @@ function processTransactionsForPieChart(transactions, showRefunds = true) {
         .map(txn => ({
             label: txn.name,
             value: Math.abs(txn.amount),
-            color: getColorForTransaction(txn.amount)
+            color: getColorForTransaction(txn.amount),
+            borderColor: getBorderColorForTransaction(txn.amount)
         }));
 }
 
@@ -341,7 +347,11 @@ function renderPieChart(transactions, showRefunds) {
         values: pieData.map(data => data.value),
         type: 'pie',
         marker: {
-            colors: pieData.map(data => data.color)
+            colors: pieData.map(data => data.color),
+            line: {
+                color: pieData.map(data => data.borderColor),
+                width: 2 // Width of the border around refunds
+            }
         }
     }];
 

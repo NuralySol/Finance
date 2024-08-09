@@ -7,6 +7,80 @@
     <title>Link Bank Account - Finance Tracker</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <style>
+        /* Add basic styling for the modal and buttons */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-button:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #delete-user-button {
+            margin-top: 20px;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #delete-user-button:hover {
+            background-color: darkred;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,16 +90,24 @@
     <div class="container">
         <h1>Link Your Bank Account</h1>
         <button id="link-button">Connect a bank account</button>
-        <button id="delete-user-button" style="margin-top: 20px; background-color: red;">Delete Account</button>
+        <button id="delete-user-button">Delete Account</button>
     </div>
 
-    <!-- The Modal -->
+    <!-- The Modal for Deletion Confirmation -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-            <button id="confirm-delete-button" class="modal-button" style="background-color: red;">Delete</button>
+            <button id="confirm-delete-button" class="modal-button" style="background-color: red; color: white;">Delete</button>
             <button id="cancel-delete-button" class="modal-button">Cancel</button>
+        </div>
+    </div>
+
+    <!-- The Modal for User Deleted Confirmation -->
+    <div id="deletedConfirmModal" class="modal">
+        <div class="modal-content">
+            <p>Your account has been deleted successfully.</p>
+            <button id="close-confirmation-button" class="modal-button">OK</button>
         </div>
     </div>
 
@@ -39,7 +121,6 @@
                     let linkHandler = Plaid.create({
                         token: data.link_token,
                         onSuccess: function (public_token, metadata) {
-                            // Send the public_token to your server
                             fetch('/get-transactions', {
                                 method: 'POST',
                                 headers: {
@@ -57,9 +138,7 @@
                                 });
                         },
                         onExit: function (err, metadata) {
-                            // The user exited the Link flow.
                             if (err != null) {
-                                // The user encountered a Plaid API error prior to exiting.
                                 console.error(err);
                             }
                         }
@@ -72,35 +151,33 @@
                 });
         };
 
-        // Get the modal
-        let modal = document.getElementById('deleteModal');
+        // Get the modals
+        let deleteModal = document.getElementById('deleteModal');
+        let deletedConfirmModal = document.getElementById('deletedConfirmModal');
 
-        // Get the button that opens the modal
+        // Get the buttons and elements that open/close the modals
         let btn = document.getElementById('delete-user-button');
-
-        // Get the <span> element that closes the modal
         let span = document.getElementsByClassName('close')[0];
-
-        // Get the buttons inside the modal
         let confirmBtn = document.getElementById('confirm-delete-button');
         let cancelBtn = document.getElementById('cancel-delete-button');
+        let closeConfirmBtn = document.getElementById('close-confirmation-button');
 
-        // When the user clicks the button, open the modal
+        // When the user clicks the button, open the delete modal
         btn.onclick = function () {
-            modal.style.display = 'flex';
+            deleteModal.style.display = 'flex';
         }
 
         // When the user clicks on <span> (x), close the modal
         span.onclick = function () {
-            modal.style.display = 'none';
+            deleteModal.style.display = 'none';
         }
 
         // When the user clicks the cancel button, close the modal
         cancelBtn.onclick = function () {
-            modal.style.display = 'none';
+            deleteModal.style.display = 'none';
         }
 
-        // When the user clicks the confirm button, delete the account
+        // When the user clicks the confirm delete button
         confirmBtn.onclick = function () {
             fetch('/delete-user', {
                 method: 'DELETE',
@@ -110,21 +187,27 @@
             })
                 .then(response => response.text())
                 .then(data => {
-                    alert(data);
-                    window.location.href = '/'; // Redirect to home page
+                    // Hide delete modal and show confirmation modal
+                    deleteModal.style.display = 'none';
+                    deletedConfirmModal.style.display = 'flex';
                 })
                 .catch((error) => {
                     console.error('Error:', error);
                 });
         }
 
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+        // When the user clicks the confirmation modal button
+        closeConfirmBtn.onclick = function () {
+            deletedConfirmModal.style.display = 'none';
+            window.location.href = '/login'; // Redirect to login page
         }
 
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        }
     </script>
     <a href="/dashboard">Go to Dashboard</a>
 </body>

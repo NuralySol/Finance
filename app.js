@@ -195,6 +195,33 @@ app.get('/dashboard', async (req, res) => {
     }
 });
 
+app.delete('/delete-user', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    try {
+        // Find and delete the user by their session ID
+        const result = await User.findByIdAndDelete(req.session.userId);
+
+        if (!result) {
+            return res.status(404).send('User not found');
+        }
+
+        // Destroy the session after deletion
+        req.session.destroy(err => {
+            if (err) {
+                return res.status(500).send('Failed to delete session');
+            }
+            res.send('Account successfully deleted');
+        });
+
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send('Error deleting user');
+    }
+});
+
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });

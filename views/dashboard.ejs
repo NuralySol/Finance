@@ -192,7 +192,7 @@
 
         <div class="chart">
             <h2>Expenses by Place of Spending (Bar Chart)</h2>
-            <div id="barChart" style="height: 400px;"></div>
+            <div id="barChart" style="height: 450px;"></div>
         </div>
     </div>
 
@@ -203,8 +203,8 @@
                 <tr>
                     <th>Date</th>
                     <th>Name</th>
-                    <th>Category</th>
-                    <th>Amount</th>
+                    <th></th>
+                    <th>Amount $</th>
                 </tr>
             </thead>
             <tbody>
@@ -266,7 +266,7 @@
 
         const pieLayout = {
             title: 'Amount Spent by Place',
-            margin: { t: 40, b: 40, l: 40, r: 40 },
+            margin: { t: 30, b: 30, l: 30, r: 30 },
         };
 
         Plotly.newPlot('pieChart', pieData, pieLayout);
@@ -291,7 +291,7 @@
             title: 'Amount Spent by Place',
             xaxis: { title: 'Place of Spending' },
             yaxis: { title: 'Total Amount ($)' },
-            margin: { t: 40, b: 40, l: 40, r: 40 },
+            margin: { t: 30, b: 130, l: 55, r: 70 },
         };
 
         Plotly.newPlot('barChart', barData, barLayout);

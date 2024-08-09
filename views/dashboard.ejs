@@ -204,6 +204,9 @@
         <div class="chart">
             <h2>Expenses by Category (Pie Chart)</h2>
             <div id="pieChart" style="height: 550px;"></div>
+            <button id="toggleRefundsButton" style="margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Hide Refunds
+            </button>
         </div>
 
         <div class="chart">
@@ -305,7 +308,7 @@ function updateDateRangeDisplay() {
 // Call the function to display the date range when the page loads
 updateDateRangeDisplay();
 
-// Function to generate a random muted color
+// Function to generate a random muted color for expenditures
 function getRandomMutedColor() {
     const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
     const saturation = Math.floor(Math.random() * 30) + 40; // Saturation between 40% and 70%
@@ -313,23 +316,53 @@ function getRandomMutedColor() {
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-// Prepare data for Pie Chart
-const pieData = [{
-    labels: transactions.map(txn => txn.name),
-    values: transactions.map(txn => Math.abs(txn.amount)), // Using absolute values for spending amounts
-    type: 'pie',
-    marker: {
-        colors: transactions.map(() => getRandomMutedColor()) // Assign random muted colors
-    }
-}];
+// Function to generate a color based on whether the transaction is a refund
+function getColorForTransaction(amount) {
+    return amount < 0 ? '#f8d7da' : getRandomMutedColor(); // Red for refunds, random muted color for expenditures
+}
 
-const pieLayout = {
-    title: 'Amount Spent by Percentage',
-    margin: { t: 70, b: 30, l: 30, r: 30 },
-};
+// Function to process transactions for the pie chart
+function processTransactionsForPieChart(transactions, showRefunds = true) {
+    return transactions
+        .filter(txn => showRefunds || txn.amount >= 0) // Filter refunds based on the toggle state
+        .map(txn => ({
+            label: txn.name,
+            value: Math.abs(txn.amount),
+            color: getColorForTransaction(txn.amount)
+        }));
+}
 
-// Render the Pie Chart
-Plotly.newPlot('pieChart', pieData, pieLayout);
+// Function to render the pie chart
+function renderPieChart(transactions, showRefunds) {
+    const pieData = processTransactionsForPieChart(transactions, showRefunds);
+
+    const pieChartData = [{
+        labels: pieData.map(data => data.label),
+        values: pieData.map(data => data.value),
+        type: 'pie',
+        marker: {
+            colors: pieData.map(data => data.color)
+        }
+    }];
+
+    const pieLayout = {
+        title: 'Amount Spent by Percentage',
+        margin: { t: 70, b: 30, l: 30, r: 30 },
+    };
+
+    Plotly.newPlot('pieChart', pieChartData, pieLayout);
+}
+
+// Initial rendering of the pie chart with refunds
+let showRefunds = true;
+renderPieChart(transactions, showRefunds);
+
+// Toggle button functionality
+document.getElementById('toggleRefundsButton').addEventListener('click', function() {
+    showRefunds = !showRefunds;
+    renderPieChart(transactions, showRefunds);
+    this.textContent = showRefunds ? 'Hide Refunds' : 'Show Refunds';
+});
 
 // Initial data preparation for the bar chart
 let spendingByPlace = transactions.reduce((acc, txn) => {

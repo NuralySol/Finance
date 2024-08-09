@@ -64,6 +64,20 @@
         .date-picker button:hover {
             background-color: #0056b3;
         }
+        /* Distinct styling for the "Refresh to Current Day" button */
+        #refreshToday {
+            background-color: #28a745; /* Green background */
+            color: white;
+            font-weight:600;
+            padding: 7px 15px;
+            font-size: 1em;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #refreshToday:hover {
+            background-color: #218838;
+        }
 
         .chart-container {
             display: flex;
@@ -179,6 +193,7 @@
             <span id="selectedDate"><%= selectedDate %></span>
             <button id="nextDay">Next Day</button>
             <button id="nextMonth">Next Month</button>
+            <button id="refreshToday">Refresh to Current Day</button> <!-- New button added -->
         </div>
         <div class="date" id="currentDate"></div>
     </div>
@@ -254,88 +269,125 @@
         }
         updateDate();
 
-        // Prepare data for Pie Chart
-        const pieData = [{
-            labels: transactions.map(txn => txn.name),
-            values: transactions.map(txn => Math.abs(txn.amount)), // Using absolute values for spending amounts
-            type: 'pie',
-            marker: {
-                colors: transactions.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`)
-            }
-        }];
+       // Function to generate a random muted color
+function getRandomMutedColor() {
+    const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
+    const saturation = Math.floor(Math.random() * 30) + 40; // Saturation between 40% and 70%
+    const lightness = Math.floor(Math.random() * 30) + 30; // Lightness between 30% and 60%
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
 
-        const pieLayout = {
-            title: 'Amount Spent by Percentage',
-            margin: { t: 70, b: 30, l: 30, r: 30 },
-        };
+// Prepare data for Pie Chart
+const pieData = [{
+    labels: transactions.map(txn => txn.name),
+    values: transactions.map(txn => Math.abs(txn.amount)), // Using absolute values for spending amounts
+    type: 'pie',
+    marker: {
+        colors: transactions.map(() => getRandomMutedColor()) // Assign random muted colors
+    }
+}];
 
-        Plotly.newPlot('pieChart', pieData, pieLayout);
+const pieLayout = {
+    title: 'Amount Spent by Percentage',
+    margin: { t: 70, b: 30, l: 30, r: 30 },
+};
 
-        // Prepare data for Bar Chart
-        const spendingByPlace = transactions.reduce((acc, txn) => {
-            acc[txn.name] = (acc[txn.name] || 0) + txn.amount;
-            return acc;
-        }, {});
+Plotly.newPlot('pieChart', pieData, pieLayout);
 
-        const barData = [{
-            x: Object.keys(spendingByPlace),
-            y: Object.values(spendingByPlace),
-            type: 'bar',
-            marker: {
-                color: 'rgba(55, 128, 191, 0.7)',
-                borderColor: 'rgba(55, 128, 191, 1)'
-            }
-        }];
+// Prepare data for Bar Chart
+const spendingByPlace = transactions.reduce((acc, txn) => {
+    acc[txn.name] = (acc[txn.name] || 0) + txn.amount;
+    return acc;
+}, {});
 
-        const barLayout = {
-            title: 'Amount Spent by Place',
-            xaxis: { title: 'Place of Spending' },
-            yaxis: { title: 'Total Amount ($)' },
-            margin: { t: 70, b: 130, l: 55, r: 70 },
-        };
+const barData = [{
+    x: Object.keys(spendingByPlace),
+    y: Object.values(spendingByPlace),
+    type: 'bar',
+    marker: {
+        color: Object.keys(spendingByPlace).map(() => getRandomMutedColor()), // Assign random muted colors
+        line: {
+            width: 1,
+            color: 'black' // Optional: black border for each bar
+        }
+    }
+}];
 
-        Plotly.newPlot('barChart', barData, barLayout);
+const barLayout = {
+    title: 'Amount Spent by Place',
+    xaxis: { title: 'Place of Spending' },
+    yaxis: { title: 'Total Amount ($)' },
+    margin: { t: 40, b: 40, l: 40, r: 40 },
+};
 
-        // Function to format a date into YYYY-MM-DD format
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+Plotly.newPlot('barChart', barData, barLayout);
+
+  // Function to format a date into YYYY-MM-DD format
+  function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Date navigation logic
+    const prevDayButton = document.getElementById('prevDay');
+    const nextDayButton = document.getElementById('nextDay');
+    const prevMonthButton = document.getElementById('prevMonth');
+    const nextMonthButton = document.getElementById('nextMonth');
+    const refreshTodayButton = document.getElementById('refreshToday');
+    const selectedDateElement = document.getElementById('selectedDate');
+
+    function navigateDate(incrementType, incrementValue) {
+        let selectedDate = new Date(selectedDateElement.textContent);
+
+        if (incrementType === 'day') {
+            selectedDate.setDate(selectedDate.getDate() + incrementValue);
+        } else if (incrementType === 'month') {
+            selectedDate.setMonth(selectedDate.getMonth() + incrementValue);
         }
 
-        // Date navigation logic with error handling
-        const prevDayButton = document.getElementById('prevDay');
-        const nextDayButton = document.getElementById('nextDay');
-        const prevMonthButton = document.getElementById('prevMonth');
-        const nextMonthButton = document.getElementById('nextMonth');
-        const selectedDateElement = document.getElementById('selectedDate');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
 
-        function navigateDate(incrementType, incrementValue) {
-            let selectedDate = new Date(selectedDateElement.textContent);
-
-            if (incrementType === 'day') {
-                selectedDate.setDate(selectedDate.getDate() + incrementValue);
-            } else if (incrementType === 'month') {
-                selectedDate.setMonth(selectedDate.getMonth() + incrementValue);
-            }
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
-
-            if (selectedDate > today) {
-                alert("You cannot select a future date!");
-                return;
-            }
-
-            const formattedDate = formatDate(selectedDate);
-            window.location.href = `/dashboard?date=${formattedDate}`;
+        if (selectedDate > today) {
+            alert("You cannot select a future date!");
+            return;
         }
 
-        prevDayButton.addEventListener('click', () => navigateDate('day', -1));
-        nextDayButton.addEventListener('click', () => navigateDate('day', 1));
-        prevMonthButton.addEventListener('click', () => navigateDate('month', -1));
-        nextMonthButton.addEventListener('click', () => navigateDate('month', 1));
+        const formattedDate = formatDate(selectedDate);
+        selectedDateElement.textContent = formattedDate; // Update the displayed date
+
+        window.location.href = `/dashboard?date=${formattedDate}`;
+    }
+
+    prevDayButton.addEventListener('click', () => navigateDate('day', -1));
+
+    nextDayButton.addEventListener('click', () => {
+        let selectedDate = new Date(selectedDateElement.textContent);
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        const formattedDate = formatDate(selectedDate);
+        selectedDateElement.textContent = formattedDate; // Update the displayed date
+        window.location.href = `/dashboard?date=${formattedDate}`;
+    });
+
+    prevMonthButton.addEventListener('click', () => navigateDate('month', -1));
+
+    nextMonthButton.addEventListener('click', () => {
+        let selectedDate = new Date(selectedDateElement.textContent);
+        selectedDate.setMonth(selectedDate.getMonth() + 1);
+        const formattedDate = formatDate(selectedDate);
+        selectedDateElement.textContent = formattedDate; // Update the displayed date
+        window.location.href = `/dashboard?date=${formattedDate}`;
+    });
+
+    // Refresh to current day logic
+    refreshTodayButton.addEventListener('click', () => {
+        const today = new Date();
+        const formattedDate = formatDate(today);
+        selectedDateElement.textContent = formattedDate; // Update the displayed date
+        window.location.href = `/dashboard?date=${formattedDate}`;
+    });
     </script>
 </body>
 

@@ -156,7 +156,7 @@ app.get('/dashboard', async (req, res) => {
     }
     const { date, page = 1 } = req.query;
     const selectedDate = date ? new Date(date) : new Date();
-    const oneYearAgo = new Date();
+    const oneYearAgo = new Date(selectedDate);
     oneYearAgo.setFullYear(selectedDate.getFullYear() - 1);
 
     const limit = 10;
@@ -176,7 +176,7 @@ app.get('/dashboard', async (req, res) => {
 
         const totalPages = Math.ceil(totalTransactions / limit);
 
-        // Pass the formatted transactions to EJS
+        // Convert date strings to readable format before rendering
         const formattedTransactions = transactions.map(txn => ({
             ...txn._doc, // Get the document data
             date: new Date(txn.date).toLocaleDateString('en-US')

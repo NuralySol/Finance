@@ -265,8 +265,8 @@
         }];
 
         const pieLayout = {
-            title: 'Amount Spent by Place',
-            margin: { t: 30, b: 30, l: 30, r: 30 },
+            title: 'Amount Spent by Percentage',
+            margin: { t: 70, b: 30, l: 30, r: 30 },
         };
 
         Plotly.newPlot('pieChart', pieData, pieLayout);
@@ -291,7 +291,7 @@
             title: 'Amount Spent by Place',
             xaxis: { title: 'Place of Spending' },
             yaxis: { title: 'Total Amount ($)' },
-            margin: { t: 30, b: 130, l: 55, r: 70 },
+            margin: { t: 70, b: 130, l: 55, r: 70 },
         };
 
         Plotly.newPlot('barChart', barData, barLayout);

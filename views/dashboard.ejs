@@ -231,12 +231,10 @@
             </thead>
             <tbody>
                 <% transactions.forEach(function(transaction) { %>
-                    <tr>
+                    <tr style="background-color: <%= transaction.amount < 0 ? '#f8d7da' : 'transparent' %>;">
                         <td><%= new Date(transaction.date).toLocaleDateString('en-US') %></td>
                         <td><%= transaction.name %></td>
-                        <td>
-                            <%= transaction.amount > 0 ? 'Expenditure' : 'Refund' %>
-                        </td>
+                        <td><%= transaction.amount > 0 ? 'Expenditure' : 'Refund' %></td>
                         <td><%= transaction.amount.toFixed(2) %></td>
                     </tr>
                 <% }); %>
@@ -466,6 +464,7 @@ refreshTodayButton.addEventListener('click', () => {
     selectedDateElement.textContent = formattedDate; // Update the displayed date
     window.location.href = `/dashboard?date=${formattedDate}`;
 });
+
     </script>
 </body>
 

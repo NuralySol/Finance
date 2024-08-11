@@ -77,6 +77,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Route to handle log out
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Failed to destroy session during logout:', err);
+            return res.status(500).send('Failed to log out.');
+        }
+
+        res.clearCookie('connect.sid'); // Clear the session cookie
+        res.redirect('/login'); // Redirect to login page
+    });
+});
+
+
 app.get('/link-account', (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/login');

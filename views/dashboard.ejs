@@ -179,6 +179,48 @@
             margin-top: 20px;
             color: #666;
         }
+        #totalSpentButton {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1em;
+            border-radius: 5px;
+            box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #totalSpentButton:hover {
+            background-color: #218838;
+            box-shadow: 0 4px 8px rgba(33, 136, 56, 0.4);
+        }
+         /* Log Out button styling */
+        #logoutButton {
+            background-color: #ffa726; /* Light orange background */
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: auto; /* Pushes the button to the right */
+            margin-right: 200px; /* Adds some space between the button and the edge of the page */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #logoutButton:hover {
+            background-color: #fb8c00;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Positioning of the log out button */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
     </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -200,6 +242,7 @@
         <div class="date" id="currentDate"></div>
     </div>
     <h1>Finance Dashboard</h1>
+    <button id="logoutButton" onclick="handleLogout()">Log Out</button>
     <div id="dateRangeDisplay" style="font-size: 1.2em; color: #666; margin-bottom: 20px; text-align: center;"></div>
 
     <div class="chart-container">
@@ -209,6 +252,7 @@
             <button id="toggleRefundsButton" style="margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 Hide Refunds
             </button>
+            <button id="totalSpentButton">Show Total Spent</button>
         </div>
 
         <div class="chart">
@@ -432,6 +476,16 @@ document.getElementById('sortButton').addEventListener('click', () => {
     document.getElementById('sortButton').textContent = sorted ? 'Sort: Lowest to Highest' : 'Sort: Highest to Lowest';
 });
 
+// Function to calculate the total amount spent
+function calculateTotalSpent(transactions) {
+            return transactions.reduce((total, transaction) => total + transaction.amount, 0);
+        }
+
+        // Update the 'totalSpentButton' with the total amount spent
+        const totalSpentButton = document.getElementById('totalSpentButton');
+        const totalSpent = calculateTotalSpent(transactions);
+        totalSpentButton.textContent = `Total Spent: $${totalSpent.toFixed(2)}`;
+
 // Event listener for sorting by date (newest to oldest)
 let sortByDateDescending = true;
 
@@ -509,6 +563,25 @@ refreshTodayButton.addEventListener('click', () => {
     selectedDateElement.textContent = formattedDate; // Update the displayed date
     window.location.href = `/dashboard?date=${formattedDate}`;
 });
+// Handle log out functionality
+function handleLogout() {
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login'; // Redirect to login page
+                } else {
+                    console.error('Failed to log out');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
 
     </script>
 </body>

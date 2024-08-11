@@ -1,12 +1,13 @@
+/* Dynamic gradient background */
 body {
-    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f8f9fa 25%, #e9ecef 50%, #dee2e6 75%, #ced4da 100%);
+    font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     height: 100vh;
     margin: 0;
-    background-color: #f4f4f4;
 }
 
 .username-banner {

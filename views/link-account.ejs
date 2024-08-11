@@ -98,7 +98,8 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-            <button id="confirm-delete-button" class="modal-button" style="background-color: red; color: white;">Delete</button>
+            <button id="confirm-delete-button" class="modal-button"
+                style="background-color: red; color: white;">Delete</button>
             <button id="cancel-delete-button" class="modal-button">Cancel</button>
         </div>
     </div>
@@ -209,7 +210,17 @@
             }
         }
     </script>
-    <a href="/dashboard">Go to Dashboard</a>
+    <a href="/dashboard" style="
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    " onmouseover="this.style.backgroundColor='#0056b3';" onmouseout="this.style.backgroundColor='#007BFF';">
+        Go to Dashboard
+    </a>
 </body>
 
 </html>

@@ -6,221 +6,322 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Dashboard</title>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            position: relative;
-        }
+    body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e0f7e0, #c7e7c7);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    background-size: 150% 150%;
+    animation: fadeBackground 20s ease infinite;
+}
 
-        h1 {
-            color: #333;
-            margin: 20px 0;
-            font-size: 2em;
-            text-align: center;
-        }
+    @keyframes fadeBackground {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
 
-        .header {
-            width: 90%;
-            max-width: 1200px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
-            background-color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+h1 {
+    color: #2c3e50;
+    margin: 20px 0;
+    font-size: 2.5em;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+}
 
-        .username {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
+.header {
+    width: 90%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #ffffff, #f0f2f5);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-        .date-picker {
-            display: flex;
-            align-items: center;
-        }
+.header:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
 
-        .date-picker button {
-            margin: 0 5px;
-            padding: 5px 10px;
-            font-size: 1em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            transition: background-color 0.3s;
-        }
+.username {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+    background: linear-gradient(135deg, #86bb86, #9ac99a);
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    color: #fff;
+}
 
-        .date-picker button:hover {
-            background-color: #0056b3;
-        }
-        /* Distinct styling for the "Refresh to Current Day" button */
-        #refreshToday {
-            background-color: #28a745; /* Green background */
-            color: white;
-            font-weight:600;
-            padding: 7px 15px;
-            font-size: 1em;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+.date-picker {
+    display: flex;
+    align-items: center;
+}
 
-        #refreshToday:hover {
-            background-color: #218838;
-        }
+.date-picker button {
+    margin: 0 5px;
+    padding: 7px 12px;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-        .chart-container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px 0;
-            gap: 20px;
-        }
+.date-picker button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
-        .chart {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            flex: 1 1 45%;
-            position: relative;
-        }
+#refreshToday {
+    background-color: #28a745;
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    font-size: 1em;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-        .chart h2 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-        }
+#refreshToday:hover {
+    background-color: #218838;
+    box-shadow: 0 4px 8px rgba(33, 136, 56, 0.4);
+}
 
-        .transaction-history {
-            width: 90%;
-            max-width: 1200px;
-            margin-top: auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
+.chart-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px 0;
+    gap: 20px;
+}
 
-        .transaction-history h2 {
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.2em;
-        }
+.chart {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1 1 45%;
+    position: relative;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-        .transaction-history table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
+.chart:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
 
-        .transaction-history th,
-        .transaction-history td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+.chart h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: 600;
+}
 
-        .transaction-history th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: bold;
-        }
+.transaction-history {
+    width: 90%;
+    max-width: 1200px;
+    margin-top: auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-        .transaction-history tbody tr:hover {
-            background-color: #f1f1f1;
-        }
+.transaction-history:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
 
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+.transaction-history h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 600;
+}
 
-        .pagination a {
-            margin: 0 5px;
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            font-size: 0.9em;
-        }
+.transaction-history table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
 
-        .pagination a:hover:not(.disabled) {
-            background-color: #0056b3;
-        }
+.transaction-history th,
+.transaction-history td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
 
-        .pagination a.disabled {
-            background-color: #cccccc;
-            pointer-events: none;
-        }
+.transaction-history th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
 
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-        #totalSpentButton {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 24px;
-            font-size: 1em;
-            border-radius: 5px;
-            box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
+.transaction-history tbody tr:hover {
+    background-color: #f1f1f1;
+}
 
-        #totalSpentButton:hover {
-            background-color: #218838;
-            box-shadow: 0 4px 8px rgba(33, 136, 56, 0.4);
-        }
-         /* Log Out button styling */
-        #logoutButton {
-            background-color: #ffa726; /* Light orange background */
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: auto; /* Pushes the button to the right */
-            margin-right: 200px; /* Adds some space between the button and the edge of the page */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
 
-        #logoutButton:hover {
-            background-color: #fb8c00;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s ease;
+    font-size: 0.9em;
+}
 
-        /* Positioning of the log out button */
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+.pagination a:hover:not(.disabled) {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination a.disabled {
+    background-color: #cccccc;
+    pointer-events: none;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
+
+#totalSpentButton {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1em;
+    border-radius: 5px;
+    box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#totalSpentButton:hover {
+    background-color: #218838;
+    box-shadow: 0 4px 8px rgba(33, 136, 56, 0.4);
+}
+
+#logoutButton {
+    background-color: #ffa726;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 200px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#logoutButton:hover {
+    background-color: #fb8c00;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); /* Black background with transparency */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.5s ease;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
     </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -238,10 +339,18 @@
             <button id="nextDay">Next Day</button>
             <button id="nextMonth">Next Month</button>
             <button id="refreshToday">Refresh to Current Day</button> <!-- New button added -->
+            <!-- Modal Structure -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="errorMessage">You cannot select a future date!</p>
+    </div>
+</div>
         </div>
         <div class="date" id="currentDate"></div>
     </div>
     <h1>Finance Dashboard</h1>
+    
     <button id="logoutButton" onclick="handleLogout()">Log Out</button>
     <div id="dateRangeDisplay" style="font-size: 1.2em; color: #666; margin-bottom: 20px; text-align: center;"></div>
 
@@ -520,6 +629,28 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;
 }
 
+// Get the modal elements
+var modal = document.getElementById("errorModal");
+var span = document.getElementsByClassName("close")[0];
+
+// Function to show the error modal
+function showErrorModal(message) {
+    document.getElementById("errorMessage").textContent = message;
+    modal.style.display = "flex";
+}
+
+// Close the modal when the user clicks on <span> (x)
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// Close the modal when the user clicks anywhere outside of it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
 // Date navigation logic
 const prevDayButton = document.getElementById('prevDay');
 const nextDayButton = document.getElementById('nextDay');
@@ -541,7 +672,7 @@ function navigateDate(incrementType, incrementValue) {
     today.setHours(0, 0, 0, 0); // Set today to midnight for accurate comparison
 
     if (selectedDate > today) {
-        alert("You cannot select a future date!");
+        showErrorModal("You cannot select a future date!");
         return;
     }
 
@@ -563,26 +694,26 @@ refreshTodayButton.addEventListener('click', () => {
     selectedDateElement.textContent = formattedDate; // Update the displayed date
     window.location.href = `/dashboard?date=${formattedDate}`;
 });
+
 // Handle log out functionality
 function handleLogout() {
-            fetch('/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/login'; // Redirect to login page
-                } else {
-                    console.error('Failed to log out');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
         }
-
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/login'; // Redirect to login page
+        } else {
+            console.error('Failed to log out');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
     </script>
 </body>
 

@@ -198,7 +198,7 @@ app.get('/dashboard', async (req, res) => {
 
         // Convert date strings to readable format before rendering
         const formattedTransactions = transactions.map(txn => ({
-            ...txn._doc, // Get the document data
+            ...txn._doc, 
             date: new Date(txn.date).toLocaleDateString('en-US')
         }));
 
@@ -222,8 +222,7 @@ app.get('/dashboard', (req, res) => {
 
     // Pass the username to the template
     res.render('dashboard', {
-        username: req.session.username, // Pass username from session to EJS
-        // Add any other data you need to pass, like transactions, selectedDate, etc.
+        username: req.session.username, 
     });
 });
 

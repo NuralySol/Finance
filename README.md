@@ -76,6 +76,9 @@ Sure! A routing table for an ERD like the one provided involves defining the rou
 | **POST**        | `/get-transactions`     | Fetches transactions from Plaid, saves them to MongoDB, and returns a response. |
 | **GET**         | `/dashboard`            | Displays the user's transactions in a dashboard view (requires user login).     |
 | **DELETE**      | `/delete-user`          | Deletes the user's account and session, sending a confirmation response.        |
+
+* If you update the linked bank a account or you add a different bank it is a **PUT** method even though it is not in routes in the above. So this App does fulfill the full CRUD operations and methods. 
+
 # Timeline: August 6 - August 12
 
 #### COMMIT OFTEN and PUSH OFTEN TO REPO

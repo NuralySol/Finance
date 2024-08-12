@@ -58,20 +58,19 @@ Sure! A routing table for an ERD like the one provided involves defining the rou
 
 ### Routing Table
 
-| **HTTP Method** | **Route**            | **Description**                                                                                          | **Middlewares**           |
-| --------------- | -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------- |
-| GET             | `/`                  | Redirects to the login page.                                                                             | None                      |
-| GET             | `/register`          | Renders the registration page.                                                                           | None                      |
-| POST            | `/register`          | Handles user registration.                                                                               | `body-parser`, `mongoose` |
-| GET             | `/login`             | Renders the login page with an optional error message.                                                   | None                      |
-| POST            | `/login`             | Handles user login and sets session variables for `userId` and `username`.                               | `body-parser`, `mongoose` |
-| GET             | `/link-account`      | Renders the bank account linking page. Only accessible if the user is logged in (i.e., `userId` is set). | `session`                 |
-| POST            | `/create-link-token` | Creates a Plaid link token for the current session user.                                                 | `plaidClient`, `session`  |
-| POST            | `/get-transactions`  | Fetches transactions from Plaid using the provided public token and saves them to MongoDB.               | `plaidClient`, `mongoose` |
-| GET             | `/dashboard`         | Renders the user dashboard with transaction data. Requires user to be logged in.                         | `session`, `mongoose`     |
-| DELETE          | `/delete-user`       | Deletes the currently logged-in user and destroys the session.                                           | `session`, `mongoose`     |
-|                 |                      |                                                                                                          |                           |
-
+| **HTTP Method** | **Route**               | **Description**                                                                 |
+|-----------------|-------------------------|---------------------------------------------------------------------------------|
+| **GET**         | `/`                     | Redirects to the login page.                                                    |
+| **GET**         | `/register`             | Renders the user registration page.                                             |
+| **POST**        | `/register`             | Handles user registration and redirects to the login page upon success.         |
+| **GET**         | `/login`                | Renders the login page.                                                         |
+| **POST**        | `/login`                | Processes user login, verifies credentials, and redirects to account linking.   |
+| **POST**        | `/logout`               | Logs out the user, destroys the session, and clears the session cookie.         |
+| **GET**         | `/link-account`         | Renders the account linking page (requires user to be logged in).               |
+| **POST**        | `/create-link-token`    | Creates a Plaid link token for account linking (requires user to be logged in). |
+| **POST**        | `/get-transactions`     | Fetches transactions from Plaid, saves them to MongoDB, and returns a response. |
+| **GET**         | `/dashboard`            | Displays the user's transactions in a dashboard view (requires user login).     |
+| **DELETE**      | `/delete-user`          | Deletes the user's account and session, sending a confirmation response.        |
 # Timeline: August 6 - August 12
 
 #### COMMIT OFTEN and PUSH OFTEN TO REPO

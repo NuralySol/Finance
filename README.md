@@ -126,6 +126,14 @@ Sure! A routing table for an ERD like the one provided involves defining the rou
 
 - Presentation time
 
+## Technologies used.
+- Plaid API (sandbox mode for security reasons)
+- Plotly api script for data vis
+- Mango DB 
+- EJS
+- HTML, JS, CSS
+- JSON with all the modules listed
+
 ### Stretch Goals
 
 - Type of account access for more functionality.

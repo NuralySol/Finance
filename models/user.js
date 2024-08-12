@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }] // Array of transaction references
+    transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }] 
 });
 
 userSchema.pre('save', async function (next) {

@@ -1,8 +1,8 @@
 # Finance tracking and expense app (CRUD)
 
-The app will track expenses and balance using graphs to visualize
+The app will track expenses using graphs to visualize
 for easier and more concise customer experience. Using data vis. tools
-as well as the numerical values.
+as well as the numerical values to convey the message. 
 
 ## User Story
 
@@ -17,17 +17,17 @@ as well as the numerical values.
 
 ## Database (MongoDB)
 
-> A good place to place to store the data of customers.
+> A good place to place to store the data of customers. Local and cluster setup.
 
 ### CRUD
 
 > GET/POST/PUT/DELETE Expense API
 
-> GET/POST/PUT/DELETE Balance API this is a stretch goal
+> GET/POST/PUT/DELETE Balance API *** this is a stretch goal ***
 
 - Use their official node client Plaid-Node
 - Use MongooseJS for communicating with MongoDB.
-- Create at least two tables: transactions, and dates, etc. 
+- Create at least two tables: transactions, dates, pie, chart and bar chart, etc. 
 - Design your background job to periodically request financial data from Plaid and store them in your database.
 - Implement authentication and authorization
 

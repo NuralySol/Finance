@@ -48,6 +48,11 @@ The look and design of the app should be similar to that.
 The basic ERD for tracking expenses in a finance app.
 ![ERD](./public/Entity%20Relationship%20Diagram%20-%20Frame%201.jpg)
 
+### Future Plans
+
+The stretch goal vis cue for the future of the app.
+![Future Wireframe](./public/Stretch%20Goal.jpg)
+
 ### Data VIS tool
 
 > [Plotly](https://plotly.com/javascript) this will be my data vis tool to help me visualize the graph for my app.

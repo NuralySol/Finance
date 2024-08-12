@@ -143,12 +143,18 @@ app.post('/get-transactions', async (req, res) => {
 
         console.log('Transactions Response:', transactionsResponse.data);
 
+        // Check if transactionsResponse and transactions array are present and not null
+        if (!transactionsResponse || !transactionsResponse.data || !transactionsResponse.data.transactions || transactionsResponse.data.transactions.length === 0) {
+            console.error('No transactions found or data is null');
+            return res.status(500).send('No transactions found or data is null');
+        }
+
         // Create and save transactions to MongoDB
         const transactions = transactionsResponse.data.transactions.map(txn => ({
-            date: txn.date,
-            name: txn.name,
-            amount: txn.amount,
-            category: txn.category[0]
+            date: txn.date || 'N/A', // Default to 'N/A' if date is not available
+            name: txn.name || 'Unknown', // Default to 'Unknown' if name is not available
+            amount: txn.amount || 0, // Default to 0 if amount is not available
+            category: txn.category && txn.category.length > 0 ? txn.category[0] : 'Uncategorized' // Handle empty or undefined categories
         }));
 
         // Save each transaction individually

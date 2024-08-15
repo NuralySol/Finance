@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { plaidClient } from './plaidClient.js';
+import { plaidClient } from './models/plaidClient.js';
 import { Transaction } from './models/transaction.js';
 import { User } from './models/user.js';
 
@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-    secret: 'solid',
+    secret: 'your_secret_key',
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }

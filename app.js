@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-    secret: 'your_secret_key',
+    secret: 'solid',
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }

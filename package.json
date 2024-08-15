@@ -1,7 +1,7 @@
 {
   "name": "finance",
   "version": "1.0.0",
-  "description": "The app will track expenses and balance using graphs to visualize  for easier and more concise customer experience. Using data vis. tools  as well as the numerical values.",
+  "description": "The app will track expenses and balance using graphs to visualize for easier and more concise customer experience. Using data vis. tools as well as the numerical values.",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -25,4 +25,5 @@
   },
   "engines": {
     "node": "16.x"
+  }
 }

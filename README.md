@@ -127,7 +127,7 @@ Sure! A routing table for an ERD like the one provided involves defining the rou
 
 ## August 11 (Sunday)
 
-- Test a alot
+- Test many times
 
 ## August 12 (Monday)
 

@@ -108,9 +108,12 @@ app.get('/link-account', (req, res) => {
 
 app.post('/create-link-token', async (req, res) => {
     if (!req.session.userId) {
+        console.error('Unauthorized access attempt');
         return res.status(401).send('Unauthorized');
     }
     try {
+        console.log('Creating link token for user:', req.session.userId);
+        
         const response = await plaidClient.linkTokenCreate({
             user: {
                 client_user_id: req.session.userId.toString(),
@@ -120,9 +123,11 @@ app.post('/create-link-token', async (req, res) => {
             country_codes: ['US'],
             language: 'en',
         });
+
+        console.log('Link token created:', response.data.link_token);
         res.json({ link_token: response.data.link_token });
     } catch (error) {
-        console.error(error);
+        console.error('Error creating link token:', error);
         res.status(500).send('Error creating link token');
     }
 });

@@ -31,12 +31,12 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
 }));
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => {
-        console.error('Failed to connect to MongoDB:', err.message);
-        process.exit(1);
-    });
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 50000, // Increase the timeout
+    socketTimeoutMS: 45000
+});
 
 // Routes
 app.get('/', (req, res) => {

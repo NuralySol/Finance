@@ -21,22 +21,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+import MongoStore from 'connect-mongo';
+
 app.use(session({
     secret: 'solid',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: { secure: false },
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
 }));
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => {
-    console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
-});
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => {
+        console.error('Failed to connect to MongoDB:', err.message);
+        process.exit(1);
+    });
 
 // Routes
 app.get('/', (req, res) => {

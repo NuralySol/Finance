@@ -14,6 +14,13 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import plaid from 'plaid';
+
+const plaidClient = new plaid.Client({
+    clientID: process.env.PLAID_CLIENT_ID,
+    secret: process.env.PLAID_SECRET,
+    env: plaid.environments.sandbox, // use the correct environment
+});
 
 const app = express();
 app.set('view engine', 'ejs');

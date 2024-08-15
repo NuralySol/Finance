@@ -194,9 +194,9 @@ app.get('/dashboard', async (req, res) => {
         const transactions = await Transaction.find({
             date: { $gte: oneYearAgo.toISOString(), $lte: selectedDate.toISOString() }
         })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+            .skip(skip)
+            .limit(limit)
+            .exec();
 
         const totalTransactions = await Transaction.countDocuments({
             date: { $gte: oneYearAgo.toISOString(), $lte: selectedDate.toISOString() }
@@ -206,11 +206,11 @@ app.get('/dashboard', async (req, res) => {
 
         // Convert date strings to readable format before rendering
         const formattedTransactions = transactions.map(txn => ({
-            ...txn._doc, 
+            ...txn._doc,
             date: new Date(txn.date).toLocaleDateString('en-US')
         }));
 
-        res.render('dashboard', { 
+        res.render('dashboard', {
             transactions: formattedTransactions,
             username: req.session.username,
             selectedDate: selectedDate.toISOString().split('T')[0],
@@ -230,7 +230,7 @@ app.get('/dashboard', (req, res) => {
 
     // Pass the username to the template
     res.render('dashboard', {
-        username: req.session.username, 
+        username: req.session.username,
     });
 });
 
